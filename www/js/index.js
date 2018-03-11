@@ -21,14 +21,26 @@ const REFRESH_LOCATION_TIMER = 2000; //get geolocations every .. milliseconds
 var app = new Vue ({
     el: '#app',
     data: {
-        coord: 'no coord',
-        trackerInterval: null
+        trackerInterval: null,
+        cordovaReady: false,
+        map: null,
+        latitude: '',
+        longitude: '',
+        waitDisplay: '',
+        markerList: []
     },
     methods: {
         // Application Constructor
         initialize: function() {
             console.log('initialize');
             document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+            document.addEventListener("online", this.onLineEvent, false);
+        },
+
+        onLineEvent: function() {
+            if ((this.map == null) && (this.latitude != '')) { //same location but we init the map
+                this.initMap({latitude : this.latitude, longitude: this.longitude}, '#FF0000');
+            }
         },
 
         // deviceready Event Handler
@@ -38,6 +50,7 @@ var app = new Vue ({
         onDeviceReady: function() {
             console.log('device ready');
             this.receivedEvent('deviceready');
+            this.cordovaReady = true;
             this.startTracking();
         },
 
@@ -69,8 +82,20 @@ var app = new Vue ({
                 'Timestamp: '         + position.timestamp                + '\n');*/
             console.log(position.coords.latitude);
             console.log(position.coords.longitude);
-            this.coord = position.coords.latitude + ',' + position.coords.longitude;
 
+            if ((this.latitude ==  position.coords.latitude) && (this.longitude ==  position.coords.longitude)) {
+                if (this.isOnline() && (this.map == null)) { //same location but we init the map
+                    this.initMap(location, '#FF0000');
+                }
+                return;
+            }
+
+            this.latitude = position.coords.latitude;
+            this.longitude = position.coords.longitude;
+
+            if(this.isOnline()) {
+                this.initMap({latitude: this.latitude, longitude: this.longitude}, '#FF0000');
+            }
         },
 
         // onError Callback receives a PositionError object
@@ -85,15 +110,74 @@ var app = new Vue ({
 
         // Update DOM on a Received Event
         receivedEvent: function(id) {
-            var parentElement = document.getElementById(id);
+           /* var parentElement = document.getElementById(id);
             var listeningElement = parentElement.querySelector('.listening');
             var receivedElement = parentElement.querySelector('.received');
 
             listeningElement.setAttribute('style', 'display:none;');
-            receivedElement.setAttribute('style', 'display:block;');
+            receivedElement.setAttribute('style', 'display:block;');*/
 
             console.log('Received Event: ' + id);
+        },
+
+        isOnline: function() {
+            if (this.cordovaReady && navigator.connection.type) {
+                return navigator.connection.type !== Connection.NONE;
+            } else {
+                return navigator.onLine;
+            }
+        },
+
+        initMap: function(location, color) {
+            if (google == null) {
+                console.log('initMap google null');
+                return;
+            }
+            var latLng = new google.maps.LatLng(location.latitude, location.longitude);
+
+            var mapOptions = {
+                center: latLng,
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            if (this.map == null) {
+                this.waitDisplay = 'none';
+                this.map = new google.maps.Map(this.$refs.map, mapOptions);
+            }
+            this.addMarker(location, color);
+            this.map.setCenter(latLng);
+        },
+
+
+        pushMarker: function(marker) {
+            var removedMarker = this.markerList.shift();
+            if (removedMarker != undefined) {
+                removedMarker.setMap(null);
+            }
+            if (this.markerList[this.markerList.length-1] != undefined) {
+                this.markerList[this.markerList.length-1].setOptions({fillColor: '#00FF00', strokeColor: '#00FF00'});
+            }
+            this.markerList.push(marker);
+        },
+
+        addMarker: function(location, color){
+            if (this.map == null)return;
+
+            var latLng = new google.maps.LatLng(location.latitude, location.longitude);
+
+            this.pushMarker(new google.maps.Circle({
+                strokeColor: color,
+                strokeOpacity: 1,
+                strokeWeight: 1,
+                fillColor: color,
+                fillOpacity: 1,
+                map: this.map,
+                center: latLng,
+                radius: 7
+            }));
+
         }
+
     } // methods
 
 });

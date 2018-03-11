@@ -16,31 +16,86 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var app = {
-    // Application Constructor
-    initialize: function() {
-        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+const REFRESH_LOCATION_TIMER = 2000; //get geolocations every .. milliseconds
+
+var app = new Vue ({
+    el: '#app',
+    data: {
+        coord: 'no coord',
+        trackerInterval: null
     },
+    methods: {
+        // Application Constructor
+        initialize: function() {
+            console.log('initialize');
+            document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+        },
 
-    // deviceready Event Handler
-    //
-    // Bind any cordova events here. Common events are:
-    // 'pause', 'resume', etc.
-    onDeviceReady: function() {
-        this.receivedEvent('deviceready');
-    },
+        // deviceready Event Handler
+        //
+        // Bind any cordova events here. Common events are:
+        // 'pause', 'resume', etc.
+        onDeviceReady: function() {
+            console.log('device ready');
+            this.receivedEvent('deviceready');
+            this.startTracking();
+        },
 
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+        startTracking: function() {
+            console.log('start tracking....');
+            var _this = this;
+            self.trackerInterval = setInterval(function() {
+                _this.eventRefreshLocations();
+            }, REFRESH_LOCATION_TIMER);
+        },
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+        eventRefreshLocations: function() {
+            console.log('refresh location');
+            navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
+        },
 
-        console.log('Received Event: ' + id);
-    }
-};
+        // onSuccess Callback
+        // This method accepts a Position object, which contains the
+        // current GPS coordinates
+        //
+        onSuccess: function(position) {
+            /*alert('Latitude: '          + position.coords.latitude          + '\n' +
+                'Longitude: '         + position.coords.longitude         + '\n' +
+                'Altitude: '          + position.coords.altitude          + '\n' +
+                'Accuracy: '          + position.coords.accuracy          + '\n' +
+                'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+                'Heading: '           + position.coords.heading           + '\n' +
+                'Speed: '             + position.coords.speed             + '\n' +
+                'Timestamp: '         + position.timestamp                + '\n');*/
+            console.log(position.coords.latitude);
+            console.log(position.coords.longitude);
+            this.coord = position.coords.latitude + ',' + position.coords.longitude;
+
+        },
+
+        // onError Callback receives a PositionError object
+        //
+        onError: function(error) {
+            /*alert('code: '    + error.code    + '\n' +
+                'message: ' + error.message + '\n');*/
+            console.log(error.message);
+            this.coord = error.message;
+        },
+
+
+        // Update DOM on a Received Event
+        receivedEvent: function(id) {
+            var parentElement = document.getElementById(id);
+            var listeningElement = parentElement.querySelector('.listening');
+            var receivedElement = parentElement.querySelector('.received');
+
+            listeningElement.setAttribute('style', 'display:none;');
+            receivedElement.setAttribute('style', 'display:block;');
+
+            console.log('Received Event: ' + id);
+        }
+    } // methods
+
+});
 
 app.initialize();

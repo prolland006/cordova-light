@@ -8,6 +8,7 @@ vue.js + cordova
 - install cordova 
 - install android studio or android sdk
 - cordova prepare
+- npm install
 - cordova run android
 
 ## Documentation

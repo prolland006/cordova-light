@@ -4,7 +4,8 @@
   "displayName": "HelloCordova",
   "cordova": {
     "platforms": [
-      "android"
+      "android",
+      "browser"
     ],
     "plugins": {
       "cordova-plugin-geolocation": {},
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "cordova-android": "^6.2.2",
+    "cordova-browser": "^5.0.3",
     "cordova-plugin-console": "~1.1.0",
     "cordova-plugin-geolocation": "~2.4.3",
     "cordova-plugin-network-information": "~2.0.1",

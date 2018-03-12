@@ -5,6 +5,8 @@ vue.js + cordova
 ![geoloc](http://patricerolland.free.fr/pic/ionic_geoloc.jpg)
 
 ## Setup
+- install cordova 
+- install android studio or android sdk
 - cordova prepare
 - cordova run android
 

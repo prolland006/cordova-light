@@ -6,10 +6,11 @@ var app = {
     latitude: '',
     longitude: '',
     mapVu: mapView,
+    fileManager: new FileManager(),
 
     // Application Constructor
     initialize: function() {
-        console.log('initialize');
+        console.log('initialize'+this.fileManager);
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
         document.addEventListener("online", this.onLineEvent.bind(this), false);
     },
@@ -28,6 +29,7 @@ var app = {
         console.log('device ready');
         this.receivedEvent('deviceready');
         this.cordovaReady = true;
+
         this.startTracking();
     },
 
@@ -72,30 +74,39 @@ var app = {
 
         if(this.isOnline()) {
             this.mapVu.initMap({latitude: this.latitude, longitude: this.longitude}, '#FF0000');
+            this.fileManager.write_file('.','log.txt','post geoloc '+ this.latitude+','+this.longitude,Log('post geoloc wrote log.txt sucessful!'+this.latitude+','+this.longitude));
+
+            this.postGeoloc({latitude: this.latitude, longitude: this.longitude});
+
         } else {
             console.log('off line');
         }
     },
 
+    postGeoloc: function(geoloc) {
+         console.log('post request '+geoloc.latitude+','+geoloc.longitude);
+         var xhr = new XMLHttpRequest();
+         xhr.open("POST", "https://log-webservice.herokuapp.com/log/add", true);
+         xhr.setRequestHeader("Content-Type", "application/json");
+         xhr.onreadystatechange = function () {
+             if (xhr.readyState != 4 || xhr.status != 201) {
+                 console.log("XHR Error: " + xhr.responseText);
+                 return;
+             }
+             console.log("XHR Success: " + xhr.responseText);
+        };
+        xhr.send(JSON.stringify(geoloc));
+    },
+
     // onError Callback receives a PositionError object
     //
     onError: function(error) {
-        /*alert('code: '    + error.code    + '\n' +
-            'message: ' + error.message + '\n');*/
         console.log(error.message);
-        this.coord = error.message;
     },
 
 
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-       /* var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');*/
-
         console.log('Received Event: ' + id);
     },
 

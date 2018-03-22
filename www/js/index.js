@@ -3,8 +3,8 @@ const REFRESH_LOCATION_TIMER = 2000; //get geolocations every .. milliseconds
 var app = {
     trackerInterval: null,
     cordovaReady: false,
-    latitude: '',
-    longitude: '',
+    latitude: 0,
+    longitude: 0,
     mapVu: mapView,
     fileManager: new FileManager(),
 
@@ -16,7 +16,7 @@ var app = {
     },
 
     onLineEvent: function() {
-        if ((this.mapVu.map == null) && (this.latitude != '')) { //same location but we init the map
+        if ((this.mapVu.map == null) && (this.latitude != 0)) { //same location but we init the map
             this.mapVu.initMap({latitude : this.latitude, longitude: this.longitude}, '#FF0000');
         }
     },
@@ -68,6 +68,17 @@ var app = {
                 this.mapVu.initMap(location, '#FF0000');
             }
             return;
+        }
+
+        // calculate the distance
+        if (this.latitude != 0) {
+            console.log('' + this.latitude + ',' + this.longitude + ',' + position.coords.latitude + ',' + position.coords.longitude);
+            var lastDist = Tools.distanceInKmBetweenEarthCoordinates(
+                this.latitude, this.longitude, position.coords.latitude, position.coords.longitude
+            );
+            console.log("last distance=" + lastDist);
+            this.mapVu.distance += parseFloat(lastDist.toFixed(2));
+            console.log("distance=" + this.mapVu.distance);
         }
 
         this.latitude = position.coords.latitude;

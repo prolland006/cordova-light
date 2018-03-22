@@ -5,7 +5,8 @@ var mapView = new Vue ({
     data: {
         map: null,
         markerList: this.markerList = new Array(MAX_NB_MARKER),
-        waitDisplay: ''
+        waitDisplay: '',
+        distance: 0
     },
     methods: {
         initMap: function(location, color) {

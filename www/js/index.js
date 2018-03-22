@@ -28,6 +28,7 @@ var app = {
     onDeviceReady: function() {
         console.log('device ready');
         this.receivedEvent('deviceready');
+        window.plugins.insomnia.keepAwake();
         this.cordovaReady = true;
 
         this.startTracking();

@@ -12,7 +12,8 @@
       "cordova-plugin-console": {},
       "cordova-plugin-network-information": {},
       "cordova-plugin-whitelist": {},
-      "cordova-plugin-file": {}
+      "cordova-plugin-file": {},
+      "cordova-plugin-insomnia": {}
     }
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "cordova-plugin-console": "~1.1.0",
     "cordova-plugin-file": "^4.3.3",
     "cordova-plugin-geolocation": "~2.4.3",
+    "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
     "cordova-plugin-network-information": "~2.0.1",
     "cordova-plugin-whitelist": "~1.3.3"
   }
